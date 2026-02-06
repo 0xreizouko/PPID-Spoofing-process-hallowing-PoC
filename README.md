@@ -59,3 +59,4 @@ To run the project you will find the final exe at `build/<project_name>/<config>
 
 - [Protensec - Calling ntdll functions directly](https://www.proteansec.com/reverse-engineering/calling-ntdll-functions-directly/)
 - [Concealed Code Execution](https://www.huntandhackett.com/blog/concealed-code-execution-techniques-and-detection)
+

